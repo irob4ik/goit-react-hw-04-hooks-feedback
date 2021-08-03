@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { useState, useMemo } from 'react';
 
 import Statistics from './components/Statistics';
 import Section from './components/Section';
@@ -7,56 +7,58 @@ import FeedbackOptions from './components/Feedback';
 
 import styles from './container.module.css';
 
-class App extends Component {
-  state = {
-    good: 0,
-    neutral: 0,
-    bad: 0
-  };
-  
-  increaseValue = value => {    
-    this.setState(prevState => ({
-        [value]: prevState.[value] + 1,
-      }
-      ))
-  };
+export default function App() {
+  const [good, setGood] = useState(0);
+  const [neutral, setNeutral] = useState(0);
+  const [bad, setBad] = useState(0);
+  const options = ['good', 'neutral', 'bad'];
 
-  countTotalFeedback = () => {
-    const { good, neutral, bad } = this.state;
+  const totalFeedback = useMemo(() => {
     return good + neutral + bad;
-  };
+  }, [good, neutral, bad]);
 
-  countPositiveFeedbackPercentage = () => {
-    const { good, neutral, bad } = this.state;
-    const positivePercentage = ((good / (good + neutral + bad))*100).toFixed(0) + "%";
-    return positivePercentage;
-  };
+  const percentage = useMemo(() => {
+    const calc = ((good / totalFeedback) * 100).toFixed(0) + "%";
+    return calc;
+  }, [good, totalFeedback]);
 
-  render() {
-    const { good, neutral, bad } = this.state;
-    const totalFeedback = this.countTotalFeedback();
-    const percentage = this.countPositiveFeedbackPercentage();
-    
-    return (
-      <div className={styles.container}>
-        <Section title="Please leave feedback">
-          <FeedbackOptions options={Object.keys(this.state)} onLeaveFeedback={this.increaseValue}/>
-        </Section>
-
-        <Section title="Statistics">
-          {totalFeedback === 0 ?
-            <Notification message="No feedback given" /> :            
-            <Statistics
-              good={good}
-              neutral={neutral}
-              bad={bad}
-              total={totalFeedback}
-              positivePercentage={percentage}
-            />
-          }             
-        </Section>
-      </div>
-    );
+  const increaseValue = type => {
+    switch (type) {
+      case 'good':
+        setGood(prevState => prevState + 1 );
+        break;
+      
+      case 'neutral':
+        setNeutral(prevState => prevState + 1);
+        break;
+      
+      case 'bad':
+        setBad(prevState => prevState + 1);
+        break;
+      
+      default:
+        return;
+    }
   }
+
+  return (
+    <div className={styles.container}>
+      <Section title="Please leave feedback">
+        <FeedbackOptions options={options} onLeaveFeedback={increaseValue}/>
+      </Section>
+
+      <Section title="Statistics">
+        {totalFeedback === 0 ?
+          <Notification message="No feedback given" /> :            
+          <Statistics
+            good={good}
+            neutral={neutral}
+            bad={bad}
+            total={totalFeedback}
+            positivePercentage={percentage}
+          />
+        }             
+      </Section>
+    </div>
+  );
 }
-export default App;
