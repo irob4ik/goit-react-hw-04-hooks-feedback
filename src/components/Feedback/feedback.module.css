@@ -1,0 +1,14 @@
+.feedBtn {
+  height: 25px;
+  width: 60px;
+  margin-right: 30px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+
+  text-transform: capitalize;
+}
+
+.feedBtn:hover {
+  border-radius: 4px;
+  background-color: blueviolet;
+}
